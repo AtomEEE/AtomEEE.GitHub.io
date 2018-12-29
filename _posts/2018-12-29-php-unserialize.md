@@ -218,4 +218,5 @@ $installDb = new Typecho_Db($adapter, _r('dbPrefix')); //1.2版本入口点
 
 ### Reference
 \[1\]: https://www.freebuf.com/column/161798.html
+
 \[2\]: https://php.net
