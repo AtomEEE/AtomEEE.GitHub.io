@@ -149,7 +149,7 @@ $filter来自private $\_filter, $value来自private \$\_params。
 
 - POC
 
-~~~
+~~~php
 	  class Typecho_Request{
 			private $_params = array();
 			private $_filter = array();
