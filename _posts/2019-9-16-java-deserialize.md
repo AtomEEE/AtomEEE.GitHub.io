@@ -63,7 +63,7 @@ public class LogFile implements Serializable {
 ~~~
 Utils 工具类，序列化与反序列化操作
 
-~~~Java
+~~~java
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
