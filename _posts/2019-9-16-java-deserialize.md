@@ -20,7 +20,6 @@ import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-
 //Vulnerable class
 public class LogFile implements Serializable {
 
@@ -59,7 +58,6 @@ public class LogFile implements Serializable {
     }
 
 }
-
 ~~~
 Utils 工具类，序列化与反序列化操作
 
@@ -125,7 +123,7 @@ public class Utils {
 
 ~~~
 
-- Main
+Main
 
 ```java
 public class main {
