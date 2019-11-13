@@ -18,13 +18,13 @@ GOT(Global Offset Table, 全局偏移表)：是Linux ELF文件中用于定位全
 
 PLT 位于.plt section中。
 
-![/img/PWN/puts_plt.png]()
+![/img/PWN/puts_plt.PNG]()
 
 ### 3. GOT简介
 
 表中每一项都是本运行模块要引用的一个全局变量或函数的地址。可以用GOT表来间接引用全局变量、函数，也可以把GOT表的首地址作为一个基 准，用相对于该基准的偏移量来引用静态变量、静态函数。由于加载器不会把运行模块加载到固定地址，在不同进程的地址空间中，各运行模块的绝对地址、相对位 置都不同。**这种不同反映到GOT表上，就是每个进程的每个运行模块都有独立的GOT表，所以进程间不能共享GOT表。**
 
-![/img/PWN/puts_got.png]()
+![/img/PWN/puts_got.PNG]()
 
 
 
