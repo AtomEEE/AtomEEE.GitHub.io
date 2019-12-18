@@ -26,5 +26,33 @@ PLT 位于.plt section中。
 
 ![puts got](/img/PWN/puts_got.PNG)
 
+### 4. CCTF_PWN3 CTF 题目分析
 
+#### 静态分析：
+
+![decompile_main](/img/PWN/decompile_main.PNG)
+
+可以看出用户输入会进入两个流程：ask_username以及ask_password。
+
+![decompile_username](/img/PWN/decompile_username.PNG)
+
+可以看出在此阶段，用户名做了一系列的变换。循环每个字节，每个字节+1。
+
+![decompile_password](/img/PWN/decompile_password.PNG)
+
+变换过的用户名会进入password方法中，和“sysbdmin”进行对比。由此我们可以反向推测用户名。
+
+```python
+def getUserName():
+    secret = "sysbdmin"
+    username = ''
+    for i in secret:
+        username=username + chr(ord(i)-1)
+    print username
+    return username 
+```
+
+在file_get 函数中有一处格式化字符串漏洞。
+
+![decompile_getfile](/img/PWN/decompile_fileget.PNG)
 
