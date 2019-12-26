@@ -249,9 +249,11 @@ public class AntObjectInputStream extends ObjectInputStream {
 
 ### 0x01 Apache-commons-collections-1
 
+commons-collections:3.1
+
 反序列化完整执行链：
 
-![](/img/javadesrialized/acc1.png)
+![acc1](/img/javadesrialized/acc1.png)
 
 POC:
 
@@ -312,5 +314,5 @@ public class aCC1 {
 
 ```
 
-### 0x02 Apache-commons-collections-2
+### 0x02 Apache-commons-collections-3
 
